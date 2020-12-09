@@ -7,6 +7,8 @@ import static com.jayway.restassured.RestAssured.given;
 
 public class PutRequests {
 
+	Authentication authentication = new Authentication();
+
 	/**
 	 * Exercise 1: create a method to change cardName
 	 *
@@ -15,9 +17,10 @@ public class PutRequests {
 	//ToDo: Add proper parameters and endpoint. See trello documentation for details
 	public Response changeCardName() {
 		return given()
+				.specification(authentication.postRequestSpecification())
 				.queryParam("", "")
 				.when()
-				.put("");
+				.put("/cards");
 	}
 
 	@Test

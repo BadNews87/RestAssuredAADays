@@ -9,8 +9,8 @@ import static com.jayway.restassured.RestAssured.given;
 public class Authentication {
 
 	String url = "https://api.trello.com/1";
-	String apiKey = "";//https://trello.com/app-key
-	String token = ""; //https://trello.com/1/authorize?expiration=1day&name=SinglePurposeToken&key=REPLACE_WITH_YOUR_APIKEY
+	String apiKey = "163dd77c54ff87891905e21954687c1a";//https://trello.com/app-key
+	String token = "14f6119eced5f4498ffc17dd85729e69a1f0c505919d82d7d51ea8834ff364cd"; //https://trello.com/1/authorize?expiration=1day&name=SinglePurposeToken&key=REPLACE_WITH_YOUR_APIKEY
 
 	/**
 	 * Example: login with credentials
@@ -20,11 +20,11 @@ public class Authentication {
 	public Response loginWithCredentials(String username, String password) {
 		return  given()
 				.baseUri(url)
-				.header("", "")
-				.formParam("", "")
-				.formParam("", "")
-				.param("", "")
-				.when().post("");
+				.header("content-type", "application/x-www-form-urlencoded; charset=UTF-8")
+				.formParam("factors[user]", username)
+				.formParam("factors[password]", password)
+				.param("method", "password")
+				.when().post("/authentication");
 	}
 
 	/** Example: testing the method
@@ -34,13 +34,13 @@ public class Authentication {
 	 */
 	@Test
 	public void loginWithCredentialsPostiveTest() {
-		loginWithCredentials("", "").then().statusCode(200);
+		loginWithCredentials("krisu876@wp.pl", "Fantasy12").then().statusCode(200);
 	}
 
 	@Test
 	public void loginWithCredentialsNegativeTest() {
 		//ToDo: add proper assertion here(then().statusCode()
-		loginWithCredentials("", "");
+		loginWithCredentials("krisu876@wp.pl", "tralala").then().statusCode(403);
 	}
 
 	@Test
@@ -53,10 +53,11 @@ public class Authentication {
 	//ToDo add proper field name here
 	//hint: you can see the field name in previous test output.
 	public void loginWithCredentialsPrintJsonFieldTest() {
-		System.out.println(loginWithCredentials("", "").jsonPath().getString("fieldName"));
+		System.out.println(loginWithCredentials("krisu876@wp.pl", "Fantasy12")
+				.jsonPath().getString("code"));
 	}
 
-	/**Exercise: login with api key method
+	/**Exercise: login with api key methodFantasy12
 	 * 1) Add parameter key with proper value
 	 * 2) Add parameter token with proper value
 	 * 3) Add endpoint /Members/me
@@ -65,10 +66,10 @@ public class Authentication {
 	public Response authenticateWithApiKeyAndToken(String apiKey, String token) {
 		//Todo: Add proper parameters for baseUri and get methods. Add proper values for key and token fields.
 		return given()
-				.baseUri("")
-				.param( "key", "")
-				.param("token", "")
-				.when().get("");
+				.baseUri(url+"/Members/me")
+				.param( "key", apiKey)
+				.param("token", token)
+				.when().get("fullName");
 	}
 
 	/**Exercise: login with api key testing method
@@ -79,6 +80,7 @@ public class Authentication {
 	@Test
 	public void authenticateWithApiTest() {
 		//Todo: Add authenticateWithApiKeyAndToken method with proper parameters and assertions use
+        authenticateWithApiKeyAndToken(apiKey, token).prettyPrint();
 	}
 
 	/**Exercise:
@@ -87,12 +89,25 @@ public class Authentication {
 	 */
 
 	public RequestSpecification requestSpecification(){
-		return given();
+
+        return given()
+                .baseUri(url)
+                .param( "key", apiKey)
+                .param("token", token);
 	}
+
+    public RequestSpecification postRequestSpecification(){
+
+        return given()
+                .baseUri(url)
+                .contentType("application/json")
+                .queryParam( "key", apiKey)
+                .queryParam("token", token);
+    }
 
 	@Test
 	public void displayDetailsAboutUser() {
 		//ToDo: test request specification here. Print the response using prettyPrint method.
-		given().spec(requestSpecification()).when().get("/members/me");
+		given().spec(requestSpecification()).when().get("/Members/me").prettyPrint();
 	}
 }
